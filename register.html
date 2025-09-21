@@ -22,6 +22,36 @@
         .strength-weak { background: #f87171; }
         .strength-medium { background: #fbbf24; }
         .strength-strong { background: #34d399; }
+        /* Navbar UI refresh */
+        .navbar {
+            background: linear-gradient(90deg, rgba(14,165,233,0.25) 0%, rgba(99,102,241,0.25) 100%), rgba(17,24,39,0.9) !important;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(148,163,184,0.15);
+        }
+        .navbar .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .navbar .nav-link {
+            color: var(--text);
+            opacity: 0.85;
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            transition: background-color .2s ease, opacity .2s ease, color .2s ease;
+        }
+        .navbar .nav-link:hover, .navbar .nav-link.active {
+            background: rgba(148,163,184,0.12);
+            opacity: 1;
+            color: var(--text);
+        }
+        .navbar .btn-outline-light, .navbar .btn-outline-secondary {
+            color: var(--text);
+            border-color: rgba(148,163,184,0.35);
+        }
+        .navbar .btn-outline-light:hover, .navbar .btn-outline-secondary:hover {
+            background: rgba(148,163,184,0.15);
+            border-color: rgba(148,163,184,0.55);
+        }
     </style>
 </head>
 <body>

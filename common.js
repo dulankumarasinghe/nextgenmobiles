@@ -228,7 +228,13 @@ function logout() {
 // Search functionality
 function searchProducts(event) {
     event.preventDefault();
-    const query = document.getElementById('searchInput').value.toLowerCase();
+    const rawQuery = document.getElementById('searchInput').value;
+    const query = rawQuery.toLowerCase();
+
+    // CTF-safe simulation of stored XSS detection (no HTML execution)
+    if (typeof handleCTFStoredXSS === 'function') {
+        handleCTFStoredXSS(rawQuery);
+    }
     
     if (!query) {
         if (typeof displayProducts === 'function') {
@@ -293,6 +299,119 @@ function initializeCommon() {
     initializeCart();
     updateCartDisplay();
     checkAuthStatus();
+
+    // Ensure CSRF token is initialized (double-submit cookie pattern)
+    if (typeof getCsrfToken === 'function') {
+        getCsrfToken();
+    }
+
+    // Check for stored CTF XSS trigger on load (safe simulation)
+    if (typeof checkCTFStoredXSSOnLoad === 'function') {
+        checkCTFStoredXSSOnLoad();
+    }
+    // Check for XXE CTF trigger on load (safe simulation)
+    if (typeof checkCTFXXEOnLoad === 'function') {
+        checkCTFXXEOnLoad();
+    }
+}
+
+// CSRF token helpers (front-end double-submit cookie pattern)
+function getCsrfToken() {
+    try {
+        let token = localStorage.getItem('csrf_token');
+        if (!token && window.crypto && window.crypto.getRandomValues) {
+            const arr = new Uint8Array(16);
+            window.crypto.getRandomValues(arr);
+            token = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+            localStorage.setItem('csrf_token', token);
+            // Also set cookie for double-submit validation on server
+            document.cookie = `CSRF-TOKEN=${token}; Path=/; SameSite=Strict`;
+        }
+        return token || 'csrf_token';
+    } catch (_) {
+        return 'csrf_token';
+    }
+}
+window.getCsrfToken = getCsrfToken;
+
+// CTF-safe stored XSS helpers (no HTML execution)
+function handleCTFStoredXSS(query) {
+    try {
+        const triggers = ['<script', 'onerror=', '<img', '<svg', 'xss:', '<xss>'];
+        const lower = (query || '').toLowerCase();
+        const matched = triggers.some(t => lower.includes(t));
+        if (matched) {
+            localStorage.setItem('ctf_stored_xss_payload', query);
+            if (typeof showVulnerabilityFlag === 'function') {
+                showVulnerabilityFlag({
+                    flag: 'THM{STORED_XSS_SEARCH_SUCCESS}',
+                    vulnerability: 'Stored XSS (simulated) in search bar',
+                    description: 'CTF-safe simulation: payload persisted and detected without executing scripts.',
+                    payload: query,
+                    exploit_type: 'Stored XSS - Search'
+                });
+            }
+        }
+    } catch (_) {}
+}
+
+function checkCTFStoredXSSOnLoad() {
+    try {
+        const payload = localStorage.getItem('ctf_stored_xss_payload');
+        if (payload) {
+            if (typeof showVulnerabilityFlag === 'function') {
+                showVulnerabilityFlag({
+                    flag: 'THM{STORED_XSS_SEARCH_SUCCESS}',
+                    vulnerability: 'Stored XSS (simulated) in search bar',
+                    description: 'Payload persisted from a previous search. This is a safe simulation (no JS executed).',
+                    payload: payload,
+                    exploit_type: 'Stored XSS - Search'
+                });
+            }
+            // Show once per load
+            localStorage.removeItem('ctf_stored_xss_payload');
+        }
+    } catch (_) {}
+}
+
+// CTF-safe XXE helpers (no XML external entity resolution)
+function handleCTFXXE(xmlText) {
+    try {
+        const txt = (xmlText || '').toLowerCase();
+        const looksLikeXXE = txt.includes('<!doctype') && txt.includes('system') && txt.includes('<!entity');
+        if (looksLikeXXE) {
+            localStorage.setItem('ctf_xxe_payload', xmlText);
+            if (typeof showVulnerabilityFlag === 'function') {
+                showVulnerabilityFlag({
+                    flag: 'THM{XXE_SIMULATED_SUCCESS}',
+                    vulnerability: 'XML External Entity (XXE) — simulated',
+                    description: 'CTF-safe simulation: Detected DOCTYPE + SYSTEM entity pattern; no external entities were processed.',
+                    payload: xmlText,
+                    exploit_type: 'XXE (simulated)'
+                });
+            }
+            return true;
+        }
+    } catch (_) {}
+    return false;
+}
+
+function checkCTFXXEOnLoad() {
+    try {
+        const payload = localStorage.getItem('ctf_xxe_payload');
+        if (payload) {
+            if (typeof showVulnerabilityFlag === 'function') {
+                showVulnerabilityFlag({
+                    flag: 'THM{XXE_SIMULATED_SUCCESS}',
+                    vulnerability: 'XML External Entity (XXE) — simulated',
+                    description: 'Payload persisted from a previous action. This is a safe simulation; no entities were fetched.',
+                    payload: payload,
+                    exploit_type: 'XXE (simulated)'
+                });
+            }
+            localStorage.removeItem('ctf_xxe_payload');
+        }
+    } catch (_) {}
 }
 
 // Auto-initialize when DOM is loaded
@@ -310,10 +429,10 @@ function showVulnerabilityFlag(data) {
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body text-dark">
                     <div class="alert alert-success">
                         <h4><i class="fas fa-trophy"></i> Flag Captured!</h4>
-                        <h2 class="text-center text-primary">${data.flag}</h2>
+                        <h2 class="text-center text-dark">${data.flag}</h2>
                     </div>
                     ${data.vulnerability ? `<h5>Vulnerability: ${data.vulnerability}</h5>` : ''}
                     ${data.description ? `<p>${data.description}</p>` : ''}
