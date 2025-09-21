@@ -7,28 +7,82 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --bg: #0f172a;           /* slate-900 */
+            --surface: #111827;      /* gray-900 */
+            --muted-surface: #0b1220;/* darker */
+            --text: #e5e7eb;         /* gray-200 */
+            --muted: #94a3b8;        /* slate-400 */
+            --primary: #22d3ee;      /* cyan-400 */
+            --primary-2: #6366f1;    /* indigo-500 */
+            --danger: #ef4444;       /* red-500 */
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            /* Put the image at the bottom, then translucent gradients on top as overlay */
+            background:
+                linear-gradient(135deg, rgba(11,18,32,0.88) 0%, rgba(15,23,42,0.72) 50%, rgba(14,165,233,0.35) 100%),
+                radial-gradient(60% 80% at 70% 10%, rgba(99,102,241,0.35) 0%, rgba(99,102,241,0) 60%),
+                url('images/hero image.jpg');
+            background-size: cover, cover, cover;
+            background-position: center, center, center;
+            background-repeat: no-repeat;
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0;
         }
+
         .product-card {
             transition: transform 0.3s ease;
             border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
         }
         .product-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.45);
         }
+
+        .product-img {
+            width: 100%;
+            height: 260px;
+            object-fit: contain;
+            background: #0b1220;
+            padding: 8px;
+            border-bottom: 1px solid rgba(148,163,184,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            filter: brightness(1.05);
+        }
+        .btn-outline-secondary {
+            color: var(--text);
+            border-color: rgba(148,163,184,0.35);
+        }
+        .btn-outline-secondary:hover {
+            background: rgba(148,163,184,0.1);
+            color: var(--text);
+            border-color: rgba(148,163,184,0.55);
+        }
+
         .cart-badge {
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #dc3545;
+            background: var(--danger);
             color: white;
             border-radius: 50%;
             width: 20px;
@@ -39,7 +93,15 @@
             justify-content: center;
         }
         .cart-item {
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(148,163,184,0.15);
+            padding: 15px 0;
+        }
+        .footer {
+            background: linear-gradient(180deg, var(--muted-surface) 0%, #0a0f1d 100%);
+            color: var(--text);
+            padding: 40px 0;
+        }
+    </style>
             padding: 15px 0;
         }
         .footer {

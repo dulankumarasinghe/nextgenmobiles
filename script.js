@@ -9,6 +9,44 @@ document.addEventListener('DOMContentLoaded', function() {
 // Make products array globally accessible
 window.products = products;
 
+// Safely encode image URLs and normalize relative paths
+function safeImageUrl(url) {
+    try {
+        if (!url) return 'https://via.placeholder.com/300x250?text=No+Image';
+        if (/^(images|uploads)\//i.test(url)) {
+            url = `./${url}`;
+        }
+        return encodeURI(url);
+    } catch (_) {
+        return 'https://via.placeholder.com/300x250?text=No+Image';
+    }
+}
+
+// Allowed images list and mapper
+const ALLOWED_IMAGES = [
+    'images/15pro.jpg',
+    'images/nothing.jpg',
+    'images/OnePlus-12-5G-Silky-Black.jpg',
+    'images/p60 pro.jpg',
+    'images/pixel 8.jpg',
+    'images/s24.jpg',
+    'images/Sony-Xperia-1-V-Black.jpg',
+    'images/Xiaomi-14-ultra-16gb-512gb-price-in-sri-lanka-600x546.jpg'
+];
+
+function mapImageForProduct(p) {
+    const name = (p.name || '').toLowerCase();
+    const brand = (p.brand || '').toLowerCase();
+    if (brand.includes('apple') || /iphone/.test(name)) return 'images/15pro.jpg';
+    if (brand.includes('samsung') || /galaxy|s24/.test(name)) return 'images/s24.jpg';
+    if (brand.includes('google') || /pixel/.test(name)) return 'images/pixel 8.jpg';
+    if (brand.includes('oneplus')) return 'images/OnePlus-12-5G-Silky-Black.jpg';
+    if (brand.includes('huawei') || /p60/.test(name)) return 'images/p60 pro.jpg';
+    if (brand.includes('xiaomi')) return 'images/Xiaomi-14-ultra-16gb-512gb-price-in-sri-lanka-600x546.jpg';
+    if (brand.includes('sony') || /xperia/.test(name)) return 'images/Sony-Xperia-1-V-Black.jpg';
+    return 'images/nothing.jpg';
+}
+
 // Display filtered products
 function displayFilteredProducts(filteredProducts) {
     const container = document.getElementById('productsContainer');
@@ -40,7 +78,8 @@ window.displayFilteredProducts = displayFilteredProducts;
 async function loadProducts() {
     try {
         const response = await fetch('/api/products');
-        products = await response.json();
+        const data = await response.json();
+        products = data.map(p => ({ ...p, image: mapImageForProduct(p) }));
         window.products = products; // Update global reference
         displayProducts();
     } catch (error) {
@@ -59,7 +98,7 @@ function getStaticProducts() {
             id: 1,
             name: "iPhone 15 Pro",
             price: 999,
-            image: "https://via.placeholder.com/300x300?text=iPhone+15+Pro",
+            image: "images/15pro.jpg",
             description: "Latest iPhone with advanced camera system",
             brand: "Apple",
             storage: "128GB",
@@ -69,7 +108,7 @@ function getStaticProducts() {
             id: 2,
             name: "Samsung Galaxy S24",
             price: 899,
-            image: "https://via.placeholder.com/300x300?text=Galaxy+S24",
+            image: "images/s24.jpg",
             description: "Premium Android smartphone with AI features",
             brand: "Samsung",
             storage: "256GB",
@@ -79,7 +118,7 @@ function getStaticProducts() {
             id: 3,
             name: "Google Pixel 8",
             price: 699,
-            image: "https://via.placeholder.com/300x300?text=Pixel+8",
+            image: "images/pixel 8.jpg",
             description: "Pure Android experience with excellent camera",
             brand: "Google",
             storage: "128GB",
@@ -89,7 +128,7 @@ function getStaticProducts() {
             id: 4,
             name: "OnePlus 12",
             price: 799,
-            image: "https://via.placeholder.com/300x300?text=OnePlus+12",
+            image: "images/OnePlus-12-5G-Silky-Black.jpg",
             description: "Fast charging and smooth performance",
             brand: "OnePlus",
             storage: "256GB",
@@ -99,7 +138,7 @@ function getStaticProducts() {
             id: 5,
             name: "Xiaomi 14",
             price: 599,
-            image: "https://via.placeholder.com/300x300?text=Xiaomi+14",
+            image: "images/Xiaomi-14-ultra-16gb-512gb-price-in-sri-lanka-600x546.jpg",
             description: "Great value flagship smartphone",
             brand: "Xiaomi",
             storage: "128GB",
@@ -109,7 +148,7 @@ function getStaticProducts() {
             id: 6,
             name: "Huawei P60 Pro",
             price: 899,
-            image: "https://via.placeholder.com/300x300?text=P60+Pro",
+            image: "images/p60 pro.jpg",
             description: "Premium camera and design",
             brand: "Huawei",
             storage: "256GB",
@@ -141,7 +180,7 @@ function createProductCard(product) {
 
     col.innerHTML = `
         <div class="card product-card h-100">
-            <img src="${product.image}" class="card-img-top" alt="${product.name}" style="height: 250px; object-fit: cover;" onclick="viewProduct(${product.id})">
+            <img src="${safeImageUrl(product.image)}" class="card-img-top product-img" alt="${product.name}" onclick="viewProduct(${product.id})" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x250?text=Image+Not+Found';">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title" onclick="viewProduct(${product.id})" style="cursor: pointer;">${product.name}</h5>
                 <p class="card-text text-muted">${product.description}</p>

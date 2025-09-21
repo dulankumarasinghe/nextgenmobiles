@@ -110,7 +110,7 @@ function updateCartModal() {
         cartItem.innerHTML = `
             <div class="row align-items-center">
                 <div class="col-2">
-                    <img src="${item.image}" class="img-fluid rounded" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover;">
+                    <img src="${encodeURI(item.image)}" class="img-fluid rounded" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/50?text=?';">
                 </div>
                 <div class="col-4">
                     <h6 class="mb-0">${item.name}</h6>
