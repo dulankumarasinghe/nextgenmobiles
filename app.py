@@ -624,7 +624,7 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    print("Starting Mobile Shop Backend...")
+    print("Starting NextGen Mobiles Backend...")
     print("Available endpoints:")
     print("- GET  /api/products - Get all products")
     print("- GET  /api/products/<id> - Get specific product")

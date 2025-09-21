@@ -1,4 +1,4 @@
-// Shared JavaScript functions for Mobile Shop
+// Shared JavaScript functions for NextGen Mobiles
 // This file contains common functions used across all pages
 
 // Global cart management
