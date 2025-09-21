@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Mobile Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .product-card {
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="fas fa-mobile-alt"></i> Mobile Shop</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="products.html">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+                </ul>
+                
+                <!-- Search Bar -->
+                <form class="d-flex me-3" onsubmit="searchProducts(event)">
+                    <input class="form-control me-2" type="search" placeholder="Search phones..." id="searchInput" style="width: 200px;">
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown" id="userDropdown" style="display: none;">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> <span id="userName">User</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-circle"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="orders.html"><i class="fas fa-history"></i> Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" id="loginNav">
+                        <a class="nav-link" href="login.html">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" id="cartBadge">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">Our Products</h1>
+            <p class="lead mb-4">Discover the latest smartphones and accessories</p>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Filters -->
+            <div class="filter-section">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="brandFilter" class="form-label">Brand</label>
+                        <select class="form-select" id="brandFilter" onchange="filterProducts()">
+                            <option value="">All Brands</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="priceRange" class="form-label">Price Range</label>
+                        <select class="form-select" id="priceRange" onchange="filterProducts()">
+                            <option value="">All Prices</option>
+                            <option value="0-500">Under $500</option>
+                            <option value="500-800">$500 - $800</option>
+                            <option value="800-1000">$800 - $1000</option>
+                            <option value="1000+">Above $1000</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="sortBy" class="form-label">Sort By</label>
+                        <select class="form-select" id="sortBy" onchange="sortProducts()">
+                            <option value="name">Name</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="brand">Brand</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                        <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="row" id="productsContainer">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Shopping Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cartItems">
+                        <!-- Cart items will be loaded here -->
+                    </div>
+                    <div class="text-end mt-3">
+                        <h5>Total: $<span id="cartTotal">0.00</span></h5>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
+                    <button type="button" class="btn btn-primary" onclick="checkout()">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2024 Mobile Shop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="common.js"></script>
+    <script src="script.js"></script>
+    <script>
+        let allProducts = [];
+        let filteredProducts = [];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            updateCartDisplay();
+            checkAuthStatus();
+        });
+
+        // Load products and populate filters
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                filteredProducts = [...allProducts];
+                
+                // Update global products reference
+                window.products = allProducts;
+                
+                populateBrandFilter();
+                displayProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                allProducts = getStaticProducts();
+                filteredProducts = [...allProducts];
+                
+                // Update global products reference
+                window.products = allProducts;
+                
+                populateBrandFilter();
+                displayProducts();
+            }
+        }
+
+        // Get static products (fallback)
+        function getStaticProducts() {
+            return [
+                {
+                    id: 1,
+                    name: "iPhone 15 Pro",
+                    price: 999,
+                    image: "https://via.placeholder.com/300x300?text=iPhone+15+Pro",
+                    description: "Latest iPhone with advanced camera system",
+                    brand: "Apple",
+                    storage: "128GB",
+                    color: "Natural Titanium"
+                },
+                {
+                    id: 2,
+                    name: "Samsung Galaxy S24",
+                    price: 899,
+                    image: "https://via.placeholder.com/300x300?text=Galaxy+S24",
+                    description: "Premium Android smartphone with AI features",
+                    brand: "Samsung",
+                    storage: "256GB",
+                    color: "Titanium Gray"
+                },
+                {
+                    id: 3,
+                    name: "Google Pixel 8",
+                    price: 699,
+                    image: "https://via.placeholder.com/300x300?text=Pixel+8",
+                    description: "Pure Android experience with excellent camera",
+                    brand: "Google",
+                    storage: "128GB",
+                    color: "Obsidian"
+                },
+                {
+                    id: 4,
+                    name: "OnePlus 12",
+                    price: 799,
+                    image: "https://via.placeholder.com/300x300?text=OnePlus+12",
+                    description: "Fast charging and smooth performance",
+                    brand: "OnePlus",
+                    storage: "256GB",
+                    color: "Silky Black"
+                },
+                {
+                    id: 5,
+                    name: "Xiaomi 14",
+                    price: 599,
+                    image: "https://via.placeholder.com/300x300?text=Xiaomi+14",
+                    description: "Great value flagship smartphone",
+                    brand: "Xiaomi",
+                    storage: "128GB",
+                    color: "Black"
+                },
+                {
+                    id: 6,
+                    name: "Huawei P60 Pro",
+                    price: 899,
+                    image: "https://via.placeholder.com/300x300?text=P60+Pro",
+                    description: "Premium camera and design",
+                    brand: "Huawei",
+                    storage: "256GB",
+                    color: "Rococo Pearl"
+                }
+            ];
+        }
+
+        // Populate brand filter
+        function populateBrandFilter() {
+            const brandFilter = document.getElementById('brandFilter');
+            const brands = [...new Set(allProducts.map(p => p.brand))].sort();
+            
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandFilter.appendChild(option);
+            });
+        }
+
+        // Filter products
+        function filterProducts() {
+            const brandFilter = document.getElementById('brandFilter').value;
+            const priceRange = document.getElementById('priceRange').value;
+            
+            filteredProducts = allProducts.filter(product => {
+                let matchesBrand = !brandFilter || product.brand === brandFilter;
+                let matchesPrice = true;
+                
+                if (priceRange) {
+                    const [min, max] = priceRange.split('-').map(Number);
+                    if (max) {
+                        matchesPrice = product.price >= min && product.price <= max;
+                    } else {
+                        matchesPrice = product.price >= min;
+                    }
+                }
+                
+                return matchesBrand && matchesPrice;
+            });
+            
+            displayProducts();
+        }
+
+        // Sort products
+        function sortProducts() {
+            const sortBy = document.getElementById('sortBy').value;
+            
+            filteredProducts.sort((a, b) => {
+                switch (sortBy) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'price-low':
+                        return a.price - b.price;
+                    case 'price-high':
+                        return b.price - a.price;
+                    case 'brand':
+                        return a.brand.localeCompare(b.brand);
+                    default:
+                        return 0;
+                }
+            });
+            
+            displayProducts();
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('brandFilter').value = '';
+            document.getElementById('priceRange').value = '';
+            document.getElementById('sortBy').value = 'name';
+            filteredProducts = [...allProducts];
+            displayProducts();
+        }
+
+        // Search products
+        function searchProducts(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!query) {
+                filteredProducts = [...allProducts];
+            } else {
+                filteredProducts = allProducts.filter(product => 
+                    product.name.toLowerCase().includes(query) ||
+                    product.brand.toLowerCase().includes(query) ||
+                    product.description.toLowerCase().includes(query)
+                );
+            }
+            
+            displayProducts();
+        }
+
+        // Override the global searchProducts function
+        window.searchProducts = searchProducts;
+
+        // Display products
+        function displayProducts() {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No products found</h4>
+                        <p class="text-muted">Try adjusting your filters or search terms</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                const productCard = createProductCard(product);
+                container.appendChild(productCard);
+            });
+        }
+
+        // Override the global displayProducts to use filtered products
+        window.displayProducts = displayProducts;
+
+        // Create product card
+        function createProductCard(product) {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4';
+
+            col.innerHTML = `
+                <div class="card product-card h-100">
+                    <img src="${product.image}" class="card-img-top" alt="${product.name}" style="height: 250px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">${product.name}</h5>
+                        <p class="card-text text-muted">${product.description}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary">${product.brand}</span>
+                                <small class="text-muted">${product.storage}</small>
+                            </div>
+                            <h4 class="text-primary">$${product.price}</h4>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                                    <i class="fas fa-cart-plus"></i> Add to Cart
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="viewProduct(${product.id})">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return col;
+        }
+
+        // View product details
+        function viewProduct(productId) {
+            window.location.href = `product-detail.html?id=${productId}`;
+        }
+
+        // Make viewProduct globally accessible
+        window.viewProduct = viewProduct;
+
+        // Check authentication status
+        function checkAuthStatus() {
+            const user = localStorage.getItem('user');
+            const userDropdown = document.getElementById('userDropdown');
+            const loginNav = document.getElementById('loginNav');
+            const userName = document.getElementById('userName');
+
+            if (user) {
+                const userData = JSON.parse(user);
+                userName.textContent = userData.firstName || 'User';
+                userDropdown.style.display = 'block';
+                loginNav.style.display = 'none';
+            } else {
+                userDropdown.style.display = 'none';
+                loginNav.style.display = 'block';
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
