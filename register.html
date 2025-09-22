@@ -87,7 +87,7 @@
                                 <label for="email" class="form-label">Email Address</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" class="form-control" id="email" name="email" required>
+                                    <input type="text" class="form-control" id="email" name="email" required>
                                 </div>
                             </div>
                             
@@ -251,6 +251,20 @@
                 address: formData.get('address'),
                 newsletter: formData.get('newsletter') === 'on'
             };
+
+            // CTF-safe SQLi simulation: detect SQLi-shaped input and show flag
+            const sqliBundle = [
+                formData.get('firstName'),
+                formData.get('lastName'),
+                formData.get('email'),
+                formData.get('phone'),
+                formData.get('password'),
+                formData.get('confirmPassword'),
+                formData.get('address')
+            ].filter(Boolean).join(' | ');
+            if (window.handleCTFSQLiRegister && window.handleCTFSQLiRegister(sqliBundle)) {
+                return; // stop normal submission for the CTF challenge
+            }
             
             // Validate password match
             if (userData.password !== formData.get('confirmPassword')) {

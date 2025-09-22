@@ -334,6 +334,37 @@ function getCsrfToken() {
 }
 window.getCsrfToken = getCsrfToken;
 
+// CTF-safe SQLi simulator for registration
+function handleCTFSQLiRegister(rawText) {
+    try {
+        const text = String(rawText || '');
+        // Regex-based detection to catch more variations, e.g., OR '1'='1, or 1=1, with comments/spacing
+        const patterns = [
+            /\bor\s+['"]?1['"]?\s*=\s*['"]?1['"]?(\b|\s|--|#|;)/i, // OR '1'='1 or OR 1=1
+            /\bunion\s+select\b/i,
+            /--/,
+            /;--/,
+            /\/\*/,
+            /\*\//,
+            /\bsleep\s*\(/i,
+            /\bbenchmark\s*\(/i
+        ];
+        const hit = patterns.some(re => re.test(text));
+        if (hit && typeof showVulnerabilityFlag === 'function') {
+            showVulnerabilityFlag({
+                flag: 'THM{SQLI_REGISTER_SIMULATED_SUCCESS}',
+                vulnerability: 'SQL Injection (simulated) on registration',
+                description: 'CTF-safe simulation: SQLi-shaped payload detected in signup fields; no database queries executed.',
+                payload: rawText,
+                exploit_type: 'SQLi (simulated) - Register'
+            });
+            return true;
+        }
+    } catch (_) {}
+    return false;
+}
+window.handleCTFSQLiRegister = handleCTFSQLiRegister;
+
 // CTF-safe stored XSS helpers (no HTML execution)
 function handleCTFStoredXSS(query) {
     try {
